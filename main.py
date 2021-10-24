@@ -1,25 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 Editor de Spyder
-
-Este es un archivo temporal.
 """
 import numpy as np
 import matplotlib.pyplot as plt
 
 filename = "JuanDR_Walk01.csv"
 
-# TODO: add your code here
-
 data = np.genfromtxt(filename, delimiter='\t',skip_header=5)
-rh=data[:,14:17]
-sacr=data[:,5:8]
 
-fs = 100
-
+fs = 100  # confirmar fs=100Hz
 sacr=data[:,5:8]
-rtoe=data[:,14:17]
 rhee=data[:,11:14]
+rtoe=data[:,14:17]
+lhee=data[:,23:26]
+ltoe=data[:,26:29]
 
 
 def get_vtrspeed(x, y, fs):
@@ -45,9 +40,6 @@ def get_vtrspeed(x, y, fs):
 
 
 def get_walkspeed(x, y, fs):
-    """
-    Gets walking speed from initial and final points
-    """
     assert len(x)==len(y)
 
     # gets initial al final values that are not NaN
@@ -68,20 +60,59 @@ def get_walkspeed(x, y, fs):
 
 
 def get_ic(speed, thr):
-  frames_list = []
-  cnt = 0
+    frames_list = []
+    cnt = 0
 
-  # from fist item to second to last
-  for k in range(0, len(speed)-1):
+    # from fist item to second to last
+    for k in range(0, len(speed)-1):
 
-    # adds to counter if condition is met
-    if (speed[k]>=500) and (speed[k+1]<500):
-        cnt += 1
-        frames_list.append(k)
+        # adds to counter if condition is met
+        if (speed[k]>=500) and (speed[k+1]<500):
+            cnt += 1
+            frames_list.append(k)
       
-  return np.array(frames_list)
+    return np.array(frames_list)
 
 
-v_speed = get_vtrspeed(rhee[:,0], rhee[:,1], 100)
+def get_stride_len(ic_frames):
+    stride_len = []
+    for k,value in enumerate(ic_frames):
+        if k==0: continue
+        stride_len.append(np.sqrt(np.sum(np.square(np.add(rhee[ic_frames[k]], -rhee[ic_frames[k-1]])))))
+    return stride_len
+
+
+# getting IC info
+print('Getting IC frames (right first)')
 thr = 500
-print(get_ic(v_speed, thr=thr) + 480)
+r_speed = get_vtrspeed(rhee[:,0], rhee[:,1], 100)  
+l_speed = get_vtrspeed(lhee[:,0], lhee[:,1], 100)
+ric_frames = get_ic(r_speed, thr=thr)
+lic_frames = get_ic(l_speed, thr=thr)
+print(f'{ric_frames + 460}')
+print(f'{lic_frames + 460}')
+
+print('Getting stride length')
+rstride_len = get_stride_len(ric_frames)
+print(f'{rstride_len}')
+print(f'MEAN: {np.mean(rstride_len):.2f}, STD: {np.std(rstride_len):.2f}')
+
+lstride_len = get_stride_len(lic_frames)
+print(f'{lstride_len}')
+print(f'MEAN: {np.mean(lstride_len):.2f}, STD: {np.std(lstride_len):.2f}')
+
+print('Getting stride times')
+rstride_time = np.diff(ric_frames) * (1/fs)
+lstride_time = np.diff(lic_frames) * (1/fs)
+print(rstride_time)
+print(lstride_time)
+
+print('Getting step times')
+ic_all = np.sort(np.append(ric_frames+460, lic_frames+460))
+step_time = np.diff(ic_all) * (1/fs)
+print(step_time)
+
+# getting TO info
+print('\nGetting TO frames (right first)')
+walking_speed = get_walkspeed(rhee[:,0], rhee[:,1], 100)
+print(f'walking speed: {walking_speed}')
