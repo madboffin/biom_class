@@ -81,6 +81,20 @@ def get_stride_len(ic_frames):
         stride_len.append(np.sqrt(np.sum(np.square(np.add(rhee[ic_frames[k]], -rhee[ic_frames[k-1]])))))
     return stride_len
 
+def get_to(speed, wspeed, thr=0.66):
+    frames_list = []
+    cnt = 0
+
+    # from fist item to second to last
+    for k in range(0, len(speed)-1):
+
+        # adds to counter if condition is met
+        if (speed[k]<wspeed*thr) and (speed[k+1]>=wspeed*thr):
+            cnt += 1
+            frames_list.append(k)
+      
+    return np.array(frames_list)
+
 
 # getting IC info
 print('Getting IC frames (right first)')
@@ -116,3 +130,7 @@ print(step_time)
 print('\nGetting TO frames (right first)')
 walking_speed = get_walkspeed(rhee[:,0], rhee[:,1], 100)
 print(f'walking speed: {walking_speed}')
+
+rtoe_speed = get_vtrspeed(rtoe[:,0], rtoe[:,1], 100)  
+ltoe_speed = get_vtrspeed(ltoe[:,0], ltoe[:,1], 100)
+rto_frames = get_to(rtoe_speed, walking_speed, thr=0.66)
