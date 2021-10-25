@@ -108,10 +108,9 @@ print(f'{lic_frames + 460}')
 
 print('Getting stride length')
 rstride_len = get_stride_len(ric_frames)
+lstride_len = get_stride_len(lic_frames)
 print(f'{rstride_len}')
 print(f'MEAN: {np.mean(rstride_len):.2f}, STD: {np.std(rstride_len):.2f}')
-
-lstride_len = get_stride_len(lic_frames)
 print(f'{lstride_len}')
 print(f'MEAN: {np.mean(lstride_len):.2f}, STD: {np.std(lstride_len):.2f}')
 
@@ -120,6 +119,11 @@ rstride_time = np.diff(ric_frames) * (1/fs)
 lstride_time = np.diff(lic_frames) * (1/fs)
 print(rstride_time)
 print(lstride_time)
+
+print('Getting step lenth')
+rstep_len = [np.sqrt(np.sum(np.square(np.add(rhee[frame,:2], -1*lhee[frame,:2])))) for frame in ric_frames]
+lstep_len = [np.sqrt(np.sum(np.square(np.add(rhee[frame,:2], -1*lhee[frame,:2])))) for frame in lic_frames]
+print(f'{rstep_len} \n{lstep_len}')
 
 print('Getting step times')
 ic_all = np.sort(np.append(ric_frames+460, lic_frames+460))
@@ -131,6 +135,8 @@ print('\nGetting TO frames (right first)')
 walking_speed = get_walkspeed(rhee[:,0], rhee[:,1], 100)
 print(f'walking speed: {walking_speed}')
 
-rtoe_speed = get_vtrspeed(rtoe[:,0], rtoe[:,1], 100)  
+rtoe_speed = get_vtrspeed(rtoe[:,0], rtoe[:,1], 100)
 ltoe_speed = get_vtrspeed(ltoe[:,0], ltoe[:,1], 100)
 rto_frames = get_to(rtoe_speed, walking_speed, thr=0.66)
+lto_frames = get_to(ltoe_speed, walking_speed, thr=0.66)
+print(rto_frames + 380, lto_frames + 380)
