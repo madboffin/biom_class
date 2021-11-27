@@ -154,10 +154,21 @@ def get_leglen(med, asi):
 
 def get_hjc(LL):
     """
-    gets the HJC using Hara 2016 method
-    Leg Length (LL) must be in mm
+    gets HJC coordinates using Hara 2016 method
+    Leg length (LL) must be in mm
     """
     x = 11-0.063*LL
     y =  8+0.086*LL
     z = -9-0.078*LL
-    return x, y, z
+    return np.asarray([x, y, z])
+
+
+def normalize_vector(vector):
+    """
+    Normalizes a vector V with shape (n,3) by row
+    Input: numpy.array with shape (n,3)
+    Returns: normalized vector i.e. |V|=1
+    """
+    vector_norm = np.linalg.norm(vector, axis=1)
+    u_vector = np.asanyarray([ row/vector_norm[k] for k,row in enumerate(vector) ])
+    return u_vector
