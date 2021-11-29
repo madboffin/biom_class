@@ -46,18 +46,18 @@ Z0 = normalize_vector( np.cross(lasi-rasi, sacr-rasi) )  # bottom-up  (Inferior-
 X0 = np.cross(Z0, Y0)                                    # back-front (posterior-anterior direction)
 # print(X0.shape, X0)
 
-# hip joint centre left side
-HJC_estimate = get_hjc(LLL)
-HJCx_L = X0 * HJC_estimate[0]
-HJCy_L = Y0 * HJC_estimate[1]
-HJCz_L = Z0 * HJC_estimate[2]
-# print(HJC_estimate)
-
 # hip joint centre right side
 HJC_estimate = get_hjc(LLR)
 HJCx_R = X0 * HJC_estimate[0]
-HJCy_R = -Y0 * HJC_estimate[1]
+HJCy_R = Y0 * HJC_estimate[1]
 HJCz_R = Z0 * HJC_estimate[2]
+# print(HJC_estimate)
+
+# hip joint centre left side
+HJC_estimate = get_hjc(LLL)
+HJCx_L = X0 * HJC_estimate[0]
+HJCy_L = -Y0 * HJC_estimate[1]
+HJCz_L = Z0 * HJC_estimate[2]
 
 # moving coordinates to moving body
 HJC_L = mid_asi + HJCx_L + HJCy_L + HJCz_L
