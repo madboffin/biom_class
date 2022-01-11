@@ -63,7 +63,7 @@ def get_vdistances(x, y):
 
 def get_vtrspeed(x, y, fs):
     """
-    Returns vector of speeds
+    Returns vector of speeds i.e. the speed between each frame
     """
     # gets initial and final values that are not NaN
     _s, _e, x, y = fixna_sides(x, y)
@@ -76,7 +76,7 @@ def get_vtrspeed(x, y, fs):
 
 def get_walkspeed(x, y, fs):
     """
-    gets walking speed 
+    gets walking speed from beginning and ending horizontal plane position
     """
     assert len(x)==len(y)
 
@@ -96,7 +96,7 @@ def get_walkspeed(x, y, fs):
 def get_ic(speed, thr=500):
     """
     gets initial contact frames using Ghoussayni's method (2007)
-    500 mm/s
+    Initial contact occurs when marker speed drops to 500 mm/s
     """
     frames_list = []
     cnt = 0
@@ -114,7 +114,8 @@ def get_ic(speed, thr=500):
 
 def get_to(speed, wspeed, thr=0.66):
     """
-    gets toe off frames using modified gaussianni
+    Gets toe off (TO) frames using modified gaussianni
+    Toe off occurs when marker speed rises over 0.66*walking speed
     """
     frames_list = []
     cnt = 0
@@ -130,14 +131,14 @@ def get_to(speed, wspeed, thr=0.66):
     return np.array(frames_list)
 
 
-def get_stride_len(ic_frames):
+def get_stride_len(hee, ic_frames):
     """
     gets stride length from conctact frames
     """
     stride_len = []
     for k,value in enumerate(ic_frames):
         if k==0: continue
-        stride_len.append(np.sqrt(np.sum(np.square(np.add(rhee[ic_frames[k]], -rhee[ic_frames[k-1]])))))
+        stride_len.append(np.sqrt(np.sum(np.square(np.add(hee[ic_frames[k]], -hee[ic_frames[k-1]])))))
     return stride_len
 
 
@@ -172,3 +173,25 @@ def normalize_vector(vector):
     vector_norm = np.linalg.norm(vector, axis=1)
     u_vector = np.asanyarray([ row/vector_norm[k] for k,row in enumerate(vector) ])
     return u_vector
+
+
+def rotate_pca(central_marker):
+    """
+    This funtions uses PCA to rotate coordinates with an X axis along the biggest variation of the data
+    Input:  numpy array with central marker to calculate maximus axis of variation
+    Ouptut: transformation matrix
+    """
+
+    from sklearn.decomposition import PCA
+
+    # applying the transformation on the vectors X,Y
+    pca = PCA().fit(central_marker[:,0:2])
+
+    # this creates a coordinate system with X along the biggest variation axis of the data
+    X0 = np.append(pca.components_[0] ,0)
+    Z0 = np.array([0, 0, 1])
+    Y0 = np.cross(Z0, X0)
+
+    rot_matrix = np.vstack([X0, Y0, Z0])
+
+    return rot_matrix

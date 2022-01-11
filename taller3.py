@@ -59,7 +59,7 @@ def get_walkspeed(x, y, fs):
     return speed
 
 
-def get_ic(speed, thr):
+def get_ic(speed, thr=500):
     frames_list = []
     cnt = 0
 

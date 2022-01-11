@@ -5,7 +5,6 @@ from gait_functions import *
 from btkTools import *
 
 # === detecting the HJC using Hara's algorithm ===
-
 file_cali='JuanDR_Calib01.c3d'
 file_walk='JuanDR_Walk01.c3d'
 
